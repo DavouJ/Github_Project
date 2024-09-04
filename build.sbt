@@ -1,4 +1,4 @@
-name := """githubTutorial"""
+name := """Github_Project"""
 organization := "com.example"
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
