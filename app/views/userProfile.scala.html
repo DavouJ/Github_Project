@@ -1,0 +1,38 @@
+@(search: String, profile: ApiUserModel)
+
+@main("User Profile") {
+<style>
+    .t{
+    background-color: rgba(156, 155, 170);
+    }
+    ul {
+    list-style-type: none;
+    }
+</style>
+<div class="container-fluid d-flex h-100  justify-content-center align-items-center  w3-container w3-animate-opacity rounded-5">
+
+    <div class="card t w3-animate-left" style="width: 18rem; ">
+        <img src="@profile.avatar_url" class="card-img-top" alt="avatar">
+        <div class="card-body">
+            <h5 class="card-title">User: @profile.login</h5>
+            <p class="card-text"></p>
+        </div>
+        <ul class="list-group t list-group-flush">
+            <li class="card-body ">Est.: @profile.created_at</li>
+            <li class="card-body ">Location: @(profile.location match{
+                case Some(x) => x
+                case None => "None"
+                })
+            </li>
+            <li class="card-body ">Followers: @profile.followers</li>
+            <li class="card-body ">Followers: @profile.following</li>
+        </ul>
+        <form class=" d-flex card-body t justify-content-center" method="get" action="/github/users" role="search">
+            <a href="#" class=" btn btn-outline-secondary card-link text-light">Save User</a>
+        </form>
+
+    </div>
+
+</div>
+
+}
