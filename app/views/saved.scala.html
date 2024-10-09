@@ -1,8 +1,5 @@
-@import helper._
-
-@()
-
-@main("User Search"){
+@(profiles: Seq[MongoUserModel])
+@main("Saved"){
 
 <style>
     #jumbotron{
@@ -17,15 +14,13 @@
 
     <div id="jumbotron" class="p-5 mb-4 w-75 w3-container w3-animate-opacity rounded-3 ">
         <div class=" w3-animate-bottom container-fluid py-5 ">
-            <h1 class="display-5 fw-bold text-center">GitHub Directory</h1>
+            <h1 class="display-5 fw-bold text-center">Saved!</h1>
             <div class="row justify-content-center">
-                <p class="col-md-8 fs-4 p-4 text-center ">Search for a Github User below</p>
+                <p class="col-md-8 fs-4 p-4 text-center ">Click below to see saved profiles</p>
             </div>
             <div class="row justify-content-center">
-                <form class="d-flex " method="get" action="/github/users" role="search">
-                    <input class="form-control bg-transparent me-2" type="text" name="username"
-                           placeholder="Search for Username" aria-label="Search for Username">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
+                <form class="d-flex justify-content-center" method="get" action="/github/saved" >
+                    <button class="btn btn-outline-light" type="submit">Saved Profiles</button>
                 </form>
             </div>
         </div>
@@ -33,12 +28,4 @@
 
 </div>
 }
-
-
-
-
-
-
-
-
 

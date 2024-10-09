@@ -24,38 +24,59 @@ class ApplicationController @Inject()(
       => Status(error.ResponseStatus)(Json.toJson(error.reason))
     }
   }
-  def create(userName: String): Action[AnyContent]= Action.async { implicit request =>
+
+  def create(userName: String): Action[AnyContent]= Action.async {
 
     gitHubService.getGitHubUser(user = userName).value.flatMap {
       case Right(user) =>
-        mongoService.create(user.transform).map {
-          case Right(item)
-          => Created
+        mongoService.create(user.transform).flatMap {
+          case Right(item)=>
+            mongoService.index().map {
+              case Right(item: Seq[MongoUserModel]) => Ok {views.html.saved(item)}
+              case Left(error: DatabaseError) => Status(error.ResponseStatus)(Json.toJson("index fail", error.reason))
+            }
           case Left(error)
-          => Status(error.ResponseStatus)(Json.toJson(error.reason))
+          => Future.successful(Status(error.ResponseStatus)(Json.toJson("creation fail", error.reason)))
         }
-      case Left(_) =>
-        BadRequest
+      case Left(error: APIError) =>
+        Future.successful(Status(error.httpResponseStatus)(Json.toJson( error.reason)))
     }
-    //Future(Created(Json.toJson("created")))
-
   }
 
+  def getSaved(): Action[AnyContent]= Action.async {
+
+    mongoService.index().map {
+      case Right(item: Seq[MongoUserModel]) => Ok {views.html.savedProfiles(item)}
+      case Left(error: DatabaseError) => Status(error.ResponseStatus)(Json.toJson("index fail", error.reason))
+    }
+  }
 
   def getUser(search: String) = Action.async { implicit request =>
 
     gitHubService.getGitHubUser(user = search).value.map {
       case Right(user) =>
-        Ok(views.html.userProfile(search, user))
+        Ok(views.html.searchResult(search, user))
       case Left(error: APIError) =>
         Status(error.httpResponseStatus)(Json.toJson(error.reason))
     }
   }
 
-  //  def displayUser(search: String) = Action.async { implicit request =>
-  //
-  //  }
-}
+  def delete(id: Int) = Action.async { implicit request => {
+
+    mongoService.delete(id).map {
+      case Right(true) => Redirect("/github/saved")
+      case Left(error: DatabaseError) => Status(error.ResponseStatus)(Json.toJson(error.reason))
+    }
+  }
+  }
+
+  def update(name: String) = Action.async { implicit request => {
+
+    Future.successful()
+  }
+  }
+
+  }
 
 
 

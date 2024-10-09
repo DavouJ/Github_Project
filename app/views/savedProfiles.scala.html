@@ -1,0 +1,51 @@
+@(profiles: Seq[MongoUserModel])
+
+@main("Saved Profiles") {
+<style>
+
+    ul {
+    list-style-type: none;
+    }
+</style>
+
+
+<div class="container-fluid justify-content-center align-items-center ">
+
+    <h1 class="display-5 fw-bold text-center">Saved Profiles</h1>
+
+    <div class=" w3-animate-bottom container-fluid d-flex ">
+        <div class="row justify-content-center">
+            @profiles.map{ user =>
+            <div class="card m-1 w3-animate-left bg-transparent border-light-subtle fw-bold " style="width: 18rem; ">
+                <img src="@user.avatar_url" class="card-img-top rounded p-4" alt="avatar">
+                <div class="card-body row justify-content-between ">
+                    <h5 class="col-10 card-title">User: @user.login</h5>
+                    <form method="get" action="/github/update/@user._id">
+                        <button type="submit" class="col-2 btn bi bi-arrow-clockwise"></button>
+                    </form>
+                </div>
+                <ul class="list-group t list-group-flush">
+                    <li class="card-body ">Est.: @user.created_at</li>
+                    <li class="card-body ">Location: @(user.location match{
+                        case Some(x) => x
+                        case None => "None"
+                        })
+                    </li>
+                    <li class="card-body ">Followers: @user.followers</li>
+                    <li class="card-body ">Followers: @user.following</li>
+                </ul>
+                <form class=" d-flex card-body t justify-content-center" method="get" action="/github/delete/@user._id">
+                    <button type="submit" class=" btn btn-outline-secondary card-link text-light">Remove User</button>
+                </form>
+            </div>
+            }
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+}
