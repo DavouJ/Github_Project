@@ -51,9 +51,14 @@ class MongoRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exe
       }
     }
 
-  def update(id: String, entry: Map[String, Any]): Future[Either[DatabaseError.BadDBResponse, Boolean]] = {
-    val entry2 = Map("12" -> 12)
-    val updateDocument = Document("$set" -> Document(entry2))
+  def update(id: Int, entry: MongoUserModel): Future[Either[DatabaseError.BadDBResponse, Boolean]] = {
+
+    val updateDocument = Document("$set" -> Document("login" -> entry.login,
+      "avatar_url" -> entry.avatar_url,
+      "created_at" -> entry.created_at,
+      "location" -> entry.location,
+      "followers" -> entry.followers,
+      "following" -> entry.following))
 
     collection.updateOne(Filters.equal("_id", id), updateDocument)
       .toFuture().map {

@@ -13,14 +13,14 @@
 
     <h1 class="display-5 fw-bold text-center">Saved Profiles</h1>
 
-    <div class=" w3-animate-bottom container-fluid d-flex ">
+    <div class=" w3-animate-bottom container-fluid  ">
         <div class="row justify-content-center">
             @profiles.map{ user =>
             <div class="card m-1 w3-animate-left bg-transparent border-light-subtle fw-bold " style="width: 18rem; ">
                 <img src="@user.avatar_url" class="card-img-top rounded p-4" alt="avatar">
                 <div class="card-body row justify-content-between ">
                     <h5 class="col-10 card-title">User: @user.login</h5>
-                    <form method="get" action="/github/update/@user._id">
+                    <form method="get" action="/github/update/@user.login">
                         <button type="submit" class="col-2 btn bi bi-arrow-clockwise"></button>
                     </form>
                 </div>
@@ -34,9 +34,16 @@
                     <li class="card-body ">Followers: @user.followers</li>
                     <li class="card-body ">Followers: @user.following</li>
                 </ul>
-                <form class=" d-flex card-body t justify-content-center" method="get" action="/github/delete/@user._id">
-                    <button type="submit" class=" btn btn-outline-secondary card-link text-light">Remove User</button>
-                </form>
+                <div class="card-body row ">
+                    <form class=" col  " method="get" action="/github/delete/@user._id">
+                        <button type="submit" class=" btn btn-outline-secondary card-link text-light">Remove User
+                        </button>
+                    </form>
+                    <form class=" col  " method="get" action="/github/users/@user.login/repositories">
+                        <button type="submit" class=" btn btn-outline-secondary card-link text-light">View Repos
+                        </button>
+                    </form>
+                </div>
             </div>
             }
         </div>
@@ -44,8 +51,6 @@
     </div>
 
 </div>
-
-
 
 
 }

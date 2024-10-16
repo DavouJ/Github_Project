@@ -1,7 +1,7 @@
 package controllers
 
 import com.google.inject.Singleton
-import models.{APIError, ApiUserModel, DatabaseError, MongoUserModel}
+import models.{APIError, ApiUserModel, DatabaseError, MongoUserModel, RepoModel}
 import play.api.libs.json.{JsError, JsSuccess, Json}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request, Result}
 import repositories.MongoRepository
@@ -25,28 +25,32 @@ class ApplicationController @Inject()(
     }
   }
 
-  def create(userName: String): Action[AnyContent]= Action.async {
+  def create(userName: String): Action[AnyContent] = Action.async {
 
     gitHubService.getGitHubUser(user = userName).value.flatMap {
       case Right(user) =>
         mongoService.create(user.transform).flatMap {
-          case Right(item)=>
+          case Right(item) =>
             mongoService.index().map {
-              case Right(item: Seq[MongoUserModel]) => Ok {views.html.saved(item)}
+              case Right(item: Seq[MongoUserModel]) => Ok {
+                views.html.saved(item)
+              }
               case Left(error: DatabaseError) => Status(error.ResponseStatus)(Json.toJson("index fail", error.reason))
             }
           case Left(error)
           => Future.successful(Status(error.ResponseStatus)(Json.toJson("creation fail", error.reason)))
         }
       case Left(error: APIError) =>
-        Future.successful(Status(error.httpResponseStatus)(Json.toJson( error.reason)))
+        Future.successful(Status(error.httpResponseStatus)(Json.toJson(error.reason)))
     }
   }
 
-  def getSaved(): Action[AnyContent]= Action.async {
+  def getSaved(): Action[AnyContent] = Action.async {
 
     mongoService.index().map {
-      case Right(item: Seq[MongoUserModel]) => Ok {views.html.savedProfiles(item)}
+      case Right(item: Seq[MongoUserModel]) => Ok {
+        views.html.savedProfiles(item)
+      }
       case Left(error: DatabaseError) => Status(error.ResponseStatus)(Json.toJson("index fail", error.reason))
     }
   }
@@ -72,11 +76,30 @@ class ApplicationController @Inject()(
 
   def update(name: String) = Action.async { implicit request => {
 
-    Future.successful()
+    gitHubService.getGitHubUser(user = name).value.flatMap {
+      case Right(user) =>
+        mongoService.update(user.id, user.transform).map {
+          case Right(true) => Redirect("/github/saved")
+          case Left(error: DatabaseError) => Status(error.ResponseStatus)(Json.toJson(error.reason))
+        }
+      case Left(error: APIError) =>
+        Future.successful(Status(error.httpResponseStatus)(Json.toJson(error.reason)))
+
+    }
   }
   }
 
+  def getRepos(name: String) = Action.async { implicit request => {
+    gitHubService.getRepos(user = name).value.flatMap {
+      case Right(repoList) =>
+        Future.successful(Ok(views.html.userRepos(name, repoList)))
+      case Left(error: APIError) =>
+        Future.successful(Status(error.httpResponseStatus)(Json.toJson(error.reason)))
+    }
   }
+  }
+
+}
 
 
 

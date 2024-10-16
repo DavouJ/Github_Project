@@ -10,7 +10,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class GitHubConnector @Inject()(ws: WSClient) {
-  def get[Response](url: String)(implicit rds: OFormat[Response], ec: ExecutionContext): EitherT[Future, APIError, Response] = {
+  def getUser[Response](url: String)(implicit rds: OFormat[Response], ec: ExecutionContext): EitherT[Future, APIError, Response] = {
     val request = ws.url(url)
 //    val request = ws.url(url)
 //      .withHttpHeaders(
@@ -24,6 +24,20 @@ class GitHubConnector @Inject()(ws: WSClient) {
         result =>
           result.json.validate[Response] match {
             case JsSuccess(user, _) => Right(user)
+            case JsError(errors) => Left(APIError.BadAPIResponse(500, s"$errors"))
+          }
+      }
+    }
+  }
+
+  def getRepos[Response](url: String)(implicit rds: OFormat[Response], ec: ExecutionContext): EitherT[Future, APIError, List[Response]] = {
+    val request = ws.url(url)
+    val response = request.get()
+    EitherT {
+      response.map {
+        result =>
+          result.json.validate[List[Response]] match {
+            case JsSuccess(repoList, _) => Right(repoList)
             case JsError(errors) => Left(APIError.BadAPIResponse(500, s"$errors"))
           }
       }
